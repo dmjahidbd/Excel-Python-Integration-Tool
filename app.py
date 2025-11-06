@@ -5,7 +5,6 @@ Complete data analysis, visualization, AI insights, and predictive analytics
 Author: Jahid Hassan
 GitHub: github.com/dmjahidbd/Excel-Python-Integration-Tool
 """
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -15,116 +14,35 @@ import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
 from scipy import stats
 from excel_python_tool import ExcelPythonTool
-import base64
 from datetime import datetime
-import json
 
-# Page configuration
-st.set_page_config(
-    page_title="Excel-Python Integration Tool - Advanced",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="Excel-Python Tool - Advanced", page_icon="📊", layout="wide")
 
-# Custom CSS
-st.markdown("""
-    <style>
-    .main-header {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    .sub-header {
-        font-size: 1.2rem;
-        text-align: center;
-        color: #666;
-        margin-bottom: 2rem;
-    }
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .insight-box {
-        background-color: #e3f2fd;
-        padding: 15px;
-        border-left: 5px solid #2196F3;
-        border-radius: 5px;
-        margin: 10px 0;
-    }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        padding: 10px 20px;
-        background-color: #f0f2f6;
-        border-radius: 5px;
-    }
-    </style>
-""", unsafe_allow_html=True)
+st.markdown("""<style>
+.main-header {font-size: 3rem; font-weight: bold; color: #1f77b4; text-align: center; margin-bottom: 1rem;}
+.sub-header {font-size: 1.2rem; text-align: center; color: #666; margin-bottom: 2rem;}
+</style>""", unsafe_allow_html=True)
 
-# Header
 st.markdown('<div class="main-header">📊 Excel-Python Integration Tool</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">🚀 Advanced Analytics | AI Insights | Predictive Models | Interactive Dashboards</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">🚀 Advanced Analytics | AI Insights | Predictive Models</div>', unsafe_allow_html=True)
 
-# Sidebar
 with st.sidebar:
     st.image("https://img.shields.io/badge/Python-3.8%2B-blue", use_container_width=True)
-    
-    st.markdown("### 🎯 Advanced Features")
-    st.markdown("""
-    - 📊 **Multiple Chart Types**
-    - 🔥 **Correlation Heatmaps**
-    - 🤖 **AI Insights**
-    - 📈 **Predictive Analytics**
-    - 💬 **Chat with Data**
-    - 📄 **Export PDF/CSV**
-    - 🎨 **Interactive Dashboards**
-    - 📊 **Pivot Analysis**
-    - 📉 **Outlier Detection**
-    - 🎯 **Trend Forecasting**
-    """)
-    
-    st.markdown("---")
-    st.markdown("### 📖 Quick Start")
-    st.markdown("""
-    1. Upload Excel file
-    2. Explore visualizations
-    3. Get AI insights
-    4. Download reports
-    """)
-    
-    st.markdown("---")
-    st.markdown("### 👨‍💻 Developer")
-    st.markdown("**Jahid Hassan**")
-    st.markdown("[GitHub](https://github.com/dmjahidbd)")
+    st.markdown("### 🎯 Features")
+    st.markdown("- 📊 Multiple Charts\n- 🔥 Heatmaps\n- 🤖 AI Insights\n- 📈 Predictions\n- 💬 Chat Data\n- 📄 Export PDF/CSV")
+    st.markdown("---\n### 👨‍💻 Developer\n**Jahid Hassan**\n[GitHub](https://github.com/dmjahidbd)")
 
-# Initialize session state
-if 'tool' not in st.session_state:
-    st.session_state.tool = None
 if 'df' not in st.session_state:
     st.session_state.df = None
 if 'insights' not in st.session_state:
     st.session_state.insights = []
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
 
-# Helper Functions
 def generate_ai_insights(df):
-    """Generate AI-powered insights from data"""
     insights = []
-    
     try:
         numeric_cols = df.select_dtypes(include=[np.number]).columns
-        
-        # Trend analysis
         for col in numeric_cols:
             if len(df) > 1:
                 values = df[col].dropna()
@@ -132,202 +50,216 @@ def generate_ai_insights(df):
                     slope = np.polyfit(range(len(values)), values, 1)[0]
                     if abs(slope) > values.std() * 0.1:
                         direction = "increasing" if slope > 0 else "decreasing"
-                        change_pct = (slope * len(values) / values.mean()) * 100
-                        insights.append(f"🔍 **{col}** is {direction} by approximately {abs(change_pct):.1f}% over the dataset")
-        
-        # Outlier detection
+                        insights.append(f"🔍 {col} is {direction}")
         for col in numeric_cols:
-            Q1 = df[col].quantile(0.25)
-            Q3 = df[col].quantile(0.75)
+            Q1, Q3 = df[col].quantile(0.25), df[col].quantile(0.75)
             IQR = Q3 - Q1
             outliers = df[(df[col] < Q1 - 1.5 * IQR) | (df[col] > Q3 + 1.5 * IQR)]
             if len(outliers) > 0:
-                pct = (len(outliers) / len(df)) * 100
-                insights.append(f"⚠️ **{col}** has {len(outliers)} outliers ({pct:.1f}% of data) - values significantly outside normal range")
-        
-        # Statistical insights
-        for col in numeric_cols:
-            mean_val = df[col].mean()
-            median_val = df[col].median()
-            skew = df[col].skew()
-            
-            if abs(skew) > 1:
-                skew_type = "right-skewed (high values)" if skew > 0 else "left-skewed (low values)"
-                insights.append(f"📊 **{col}** is {skew_type} with skewness {skew:.2f}")
-        
-        # Correlation insights
+                insights.append(f"⚠️ {col} has {len(outliers)} outliers")
         if len(numeric_cols) > 1:
             corr_matrix = df[numeric_cols].corr()
-            high_corr = []
             for i in range(len(corr_matrix.columns)):
                 for j in range(i+1, len(corr_matrix.columns)):
-                    corr_val = corr_matrix.iloc[i, j]
-                    if abs(corr_val) > 0.7:
-                        high_corr.append((corr_matrix.columns[i], corr_matrix.columns[j], corr_val))
+                    if abs(corr_matrix.iloc[i, j]) > 0.7:
+                        insights.append(f"🔗 {corr_matrix.columns[i]} & {corr_matrix.columns[j]} correlated")
+    except:
+        pass
+    return insights if insights else ["✅ Data looks healthy!"]
+
+def create_prediction(df, target, features):
+    try:
+        X = df[features].fillna(df[features].mean())
+        y = df[target].fillna(df[target].mean())
+        model = LinearRegression().fit(X, y)
+        return model.predict(X), model.score(X, y)
+    except:
+        return None, 0
+
+def chat_data(df, query):
+    q = query.lower()
+    try:
+        nums = df.select_dtypes(include=[np.number]).columns
+        if 'mean' in q or 'average' in q:
+            return "📊 Averages:\n" + "\n".join([f"- {c}: {df[c].mean():.2f}" for c in nums])
+        elif 'max' in q:
+            return "📈 Maximum:\n" + "\n".join([f"- {c}: {df[c].max():.2f}" for c in nums])
+        elif 'min' in q:
+            return "📉 Minimum:\n" + "\n".join([f"- {c}: {df[c].min():.2f}" for c in nums])
+        elif 'count' in q:
+            return f"📊 Rows: {len(df)}, Columns: {len(df.columns)}"
+        else:
+            return "🤔 Ask about: mean, max, min, or count"
+    except:
+        return "⚠️ Error processing query"
+
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📤 Upload", "📊 Visualizations", "🤖 AI Insights", "📈 Predictions", "💬 Chat", "💾 Export"])
+
+with tab1:
+    st.header("Upload Excel File")
+    uploaded = st.file_uploader("Choose Excel file", type=['xlsx', 'xls'])
+    if uploaded:
+        try:
+            df = pd.read_excel(uploaded)
+            st.session_state.df = df
+            st.success(f"✅ Loaded {len(df)} rows, {len(df.columns)} columns")
+            st.dataframe(df.head(20), use_container_width=True)
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Rows", len(df))
+            c2.metric("Columns", len(df.columns))
+            c3.metric("Numeric", len(df.select_dtypes(include=[np.number]).columns))
+            c4.metric("Missing", df.isnull().sum().sum())
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+    else:
+        st.info("👆 Upload file or try sample data")
+        if st.button("🔄 Sample Data"):
+            st.session_state.df = pd.DataFrame({
+                'Product': ['A', 'B', 'C'] * 10,
+                'Region': ['East', 'West'] * 15,
+                'Sales': np.random.randint(100, 300, 30),
+                'Quantity': np.random.randint(10, 30, 30),
+                'Profit': np.random.randint(20, 50, 30)
+            })
+            st.rerun()
+
+with tab2:
+    st.header("📊 Visualizations")
+    if st.session_state.df is not None:
+        df = st.session_state.df
+        nums = df.select_dtypes(include=[np.number]).columns.tolist()
+        cats = df.select_dtypes(include=['object']).columns.tolist()
+        
+        viz = st.selectbox("Chart Type", ["Bar", "Line", "Pie", "Scatter", "Histogram", "Box", "Heatmap", "Area"])
+        
+        if viz == "Bar" and nums:
+            x = st.selectbox("X", df.columns, key="bx")
+            y = st.selectbox("Y", nums, key="by")
+            if st.button("Generate"):
+                st.plotly_chart(px.bar(df, x=x, y=y, title=f"{y} by {x}"), use_container_width=True)
+        
+        elif viz == "Line" and nums:
+            cols = st.multiselect("Columns", nums)
+            if cols and st.button("Generate"):
+                st.plotly_chart(px.line(df, y=cols, title="Trends"), use_container_width=True)
+        
+        elif viz == "Pie" and nums:
+            cat = st.selectbox("Category", df.columns)
+            val = st.selectbox("Values", nums)
+            if st.button("Generate"):
+                data = df.groupby(cat)[val].sum().reset_index()
+                st.plotly_chart(px.pie(data, names=cat, values=val), use_container_width=True)
+        
+        elif viz == "Scatter" and len(nums) >= 2:
+            x = st.selectbox("X", nums, key="sx")
+            y = st.selectbox("Y", nums, key="sy")
+            if st.button("Generate"):
+                st.plotly_chart(px.scatter(df, x=x, y=y, title=f"{y} vs {x}"), use_container_width=True)
+        
+        elif viz == "Histogram" and nums:
+            col = st.selectbox("Column", nums)
+            bins = st.slider("Bins", 10, 100, 30)
+            if st.button("Generate"):
+                st.plotly_chart(px.histogram(df, x=col, nbins=bins), use_container_width=True)
+        
+        elif viz == "Box" and nums:
+            col = st.selectbox("Column", nums)
+            if st.button("Generate"):
+                st.plotly_chart(px.box(df, y=col), use_container_width=True)
+        
+        elif viz == "Heatmap" and len(nums) > 1:
+            if st.button("Generate Correlation Heatmap"):
+                fig, ax = plt.subplots(figsize=(10, 8))
+                sns.heatmap(df[nums].corr(), annot=True, cmap='coolwarm', center=0, ax=ax)
+                st.pyplot(fig)
+        
+        elif viz == "Area" and nums:
+            cols = st.multiselect("Columns", nums, key="area")
+            if cols and st.button("Generate"):
+                st.plotly_chart(px.area(df, y=cols), use_container_width=True)
+    else:
+        st.info("Upload data first")
+
+with tab3:
+    st.header("🤖 AI Insights")
+    if st.session_state.df is not None:
+        if st.button("🔍 Generate AI Insights"):
+            with st.spinner("Analyzing..."):
+                insights = generate_ai_insights(st.session_state.df)
+                st.session_state.insights = insights
+        
+        if st.session_state.insights:
+            st.subheader("📋 Discovered Insights:")
+            for insight in st.session_state.insights:
+                st.markdown(f"- {insight}")
+    else:
+        st.info("Upload data first")
+
+with tab4:
+    st.header("📈 Predictive Analytics")
+    if st.session_state.df is not None:
+        df = st.session_state.df
+        nums = df.select_dtypes(include=[np.number]).columns.tolist()
+        
+        if len(nums) >= 2:
+            target = st.selectbox("Target Variable", nums)
+            features = st.multiselect("Features", [c for c in nums if c != target])
             
-            for col1, col2, corr_val in high_corr:
-                relationship = "positively correlated" if corr_val > 0 else "negatively correlated"
-                strength = "very strongly" if abs(corr_val) > 0.9 else "strongly"
-                insights.append(f"🔗 **{col1}** and **{col2}** are {strength} {relationship} (r={corr_val:.3f})")
-        
-        # Missing data insights
-        missing = df.isnull().sum()
-        total_missing = missing.sum()
-        if total_missing > 0:
-            for col in missing[missing > 0].index:
-                pct = (missing[col] / len(df)) * 100
-                if pct > 10:
-                    insights.append(f"❗ **{col}** has significant missing data: {missing[col]} values ({pct:.1f}%)")
-        
-        # Data quality summary
-        if total_missing == 0 and len(outliers) == 0:
-            insights.append("✅ **Data Quality**: Excellent! No missing values or significant outliers detected")
-        
-    except Exception as e:
-        insights.append(f"⚠️ Error generating insights: {str(e)}")
-    
-    return insights if insights else ["✅ Data looks healthy! No significant patterns detected."]
+            if features and st.button("🚀 Train Model"):
+                preds, score = create_prediction(df, target, features)
+                if preds is not None:
+                    st.success(f"✅ Model R² Score: {score:.3f}")
+                    df_pred = df.copy()
+                    df_pred['Predicted'] = preds
+                    st.plotly_chart(px.scatter(df_pred, x=target, y='Predicted', 
+                                             title="Actual vs Predicted"), use_container_width=True)
+                else:
+                    st.error("❌ Prediction failed")
+        else:
+            st.info("Need at least 2 numeric columns")
+    else:
+        st.info("Upload data first")
 
-def create_prediction_model(df, target_col, feature_cols):
-    """Create linear regression prediction model"""
-    try:
-        X = df[feature_cols].fillna(df[feature_cols].mean())
-        y = df[target_col].fillna(df[target_col].mean())
+with tab5:
+    st.header("💬 Chat with Your Data")
+    if st.session_state.df is not None:
+        query = st.text_input("Ask about your data:", placeholder="What is the average?")
+        if query:
+            response = chat_data(st.session_state.df, query)
+            st.markdown(response)
         
-        model = LinearRegression()
-        model.fit(X, y)
-        
-        predictions = model.predict(X)
-        score = model.score(X, y)
-        
-        # Feature importance
-        importance = pd.DataFrame({
-            'Feature': feature_cols,
-            'Coefficient': model.coef_
-        }).sort_values('Coefficient', ascending=False)
-        
-        return predictions, score, importance, model
-    except Exception as e:
-        return None, 0, None, None
+        st.markdown("**Try asking:**")
+        st.markdown("- What is the mean?\n- Show max values\n- Count rows")
+    else:
+        st.info("Upload data first")
 
-def export_to_pdf(df, insights, charts_data=None):
-    """Export analysis to PDF"""
-    try:
-        from reportlab.lib.pagesizes import letter, A4
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib import colors
-        from reportlab.lib.units import inch
+with tab6:
+    st.header("💾 Export & Reports")
+    if st.session_state.df is not None:
+        df = st.session_state.df
         
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch)
-        elements = []
-        styles = getSampleStyleSheet()
+        st.subheader("📥 Download Options")
         
-        # Custom styles
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=24,
-            textColor=colors.HexColor('#1f77b4'),
-            spaceAfter=30,
-            alignment=1
-        )
+        col1, col2, col3 = st.columns(3)
         
-        # Title
-        elements.append(Paragraph("Excel Data Analysis Report", title_style))
-        elements.append(Paragraph(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
-        elements.append(Spacer(1, 20))
+        with col1:
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button("📄 Download CSV", csv, "data.csv", "text/csv")
         
-        # Data Summary
-        elements.append(Paragraph("Data Summary", styles['Heading2']))
-        summary_data = [
-            ['Metric', 'Value'],
-            ['Total Rows', f"{len(df):,}"],
-            ['Total Columns', f"{len(df.columns)}"],
-            ['Numeric Columns', f"{len(df.select_dtypes(include=[np.number]).columns)}"],
-            ['Missing Values', f"{df.isnull().sum().sum():,}"],
-            ['Memory Usage', f"{df.memory_usage(deep=True).sum() / 1024:.2f} KB"]
-        ]
-        summary_table = Table(summary_data)
-        summary_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        elements.append(summary_table)
-        elements.append(Spacer(1, 20))
+        with col2:
+            excel_buffer = io.BytesIO()
+            df.to_excel(excel_buffer, index=False)
+            st.download_button("📊 Download Excel", excel_buffer.getvalue(), "data.xlsx")
         
-        # AI Insights
-        elements.append(Paragraph("AI-Powered Insights", styles['Heading2']))
-        for i, insight in enumerate(insights[:15], 1):
-            clean_insight = insight.replace('**', '').replace('*', '')
-            elements.append(Paragraph(f"{i}. {clean_insight}", styles['Normal']))
-            elements.append(Spacer(1, 6))
+        with col3:
+            txt = df.to_string()
+            st.download_button("📝 Download TXT", txt, "data.txt", "text/plain")
         
-        elements.append(Spacer(1, 20))
+        st.subheader("📊 Data Summary")
+        st.write(df.describe())
         
-        # Statistical Summary
-        elements.append(Paragraph("Statistical Summary", styles['Heading2']))
-        desc = df.describe()
-        if len(desc.columns) > 0:
-            desc_data = [['Statistic'] + list(desc.columns[:5])]  # Limit to 5 columns
-            for idx in desc.index:
-                row = [idx] + [f"{desc.loc[idx, col]:.2f}" for col in desc.columns[:5]]
-                desc_data.append(row)
-            
-            desc_table = Table(desc_data)
-            desc_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black)
-            ]))
-            elements.append(desc_table)
-        
-        doc.build(elements)
-        buffer.seek(0)
-        return buffer
-    except Exception as e:
-        st.error(f"PDF generation error: {str(e)}")
-        return None
+    else:
+        st.info("Upload data first")
 
-def chat_with_data(df, query):
-    """Simple rule-based chat with data"""
-    query = query.lower()
-    response = ""
-    
-    try:
-        # Basic statistics queries
-        if 'mean' in query or 'average' in query:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-            if len(numeric_cols) > 0:
-                means = df[numeric_cols].mean()
-                response = "📊 **Average Values:**\n\n"
-                for col, val in means.items():
-                    response += f"- **{col}**: {val:.2f}\n"
-        
-        elif 'max' in query or 'maximum' in query or 'highest' in query:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-            if len(numeric_cols) > 0:
-                maxs = df[numeric_cols].max()
-                response = "📈 **Maximum Values:**\n\n"
-                for col, val in maxs.items():
-                    response += f"- **{col}**: {val:.2f}\n"
-        
-        elif 'min' in query or 'minimum' in query or 'lowest' in query:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-            if len(numeric_cols) > 0:
-                mins = df[numeric_cols].min()
-                response = "📉 **Minimum Values:**\n\n"
-                for col, val in mins.items():
-                    response += f"- **{col}**: {val:.2f
+st.markdown("---")
+st.markdown('<div style="text-align: center; color: #666;"><p>Made with ❤️ by Jahid Hassan | <a href="https://github.com/dmjahidbd/Excel-Python-Integration-Tool">GitHub</a></p></div>', unsafe_allow_html=True)
