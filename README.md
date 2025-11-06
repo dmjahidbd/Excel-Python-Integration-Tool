@@ -4,6 +4,10 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
+## 🚀 [**Try Live Web App**](https://excel-python-integration-tool-b4xfv3dxnz4cufkjpe4foo.streamlit.app/) 🌐
+
+> **No installation needed!** Upload Excel files and analyze data directly in your browser.
+
 A comprehensive Python tool for seamless Excel integration - automate data analysis, apply machine learning models, and perform advanced analytics directly with Excel files.
 
 ## Features
