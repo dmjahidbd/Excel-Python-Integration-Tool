@@ -262,4 +262,5 @@ with tab6:
         st.info("Upload data first")
 
 st.markdown("---")
-st.markdown('<div style="text-align: center; color: #666;"><p>Made with ❤️ by Jahid Hassan | <a href="https://github.com/dmjahidbd/Excel-Python-Integration-Tool">GitHub</a></p></div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align: center; color: #666;"><p>Made with ❤️ by D M Jahid Hassan | <a href="https://github.com/dmjahidbd/Excel-Python-Integration-Tool">GitHub</a></p></div>', unsafe_allow_html=True)
+
