@@ -156,7 +156,7 @@ This project is licensed under the MIT License.
 
 ## Author
 
-**Jahid Hassan**
+**D M Jahid Hasan**
 - GitHub: [@dmjahidbd](https://github.com/dmjahidbd)
 
 ## Acknowledgments
